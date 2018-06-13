@@ -12,7 +12,6 @@ Library for handle updating application.
 ```groovy
 allprojects {
 	repositories {
-		...
 		maven { url 'https://jitpack.io' }
 	}
 }
