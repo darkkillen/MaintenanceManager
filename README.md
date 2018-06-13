@@ -28,6 +28,7 @@ dependencies {
 ## Quick Start
 
 ### Implement callback
+```kotlin
 class MainActivity : AppCompatActivity(), onMaintenanceCallback {
 
     override fun onForceUpdateButtonClick() {
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity(), onMaintenanceCallback {
         
     }
 }
+```
 
 ### Init
 ```kotlin
