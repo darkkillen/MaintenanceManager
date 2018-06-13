@@ -61,6 +61,11 @@ MaintenanceManager.MainternanceBuilder(context, BuildConfig.VERSION_CODE)
                 .maintenaceResult({isForceUpdate}, {isMaintain}, {versionCode})
 ```
 
+### input
+* isForceUpdate: Boolean // is force update required.
+* isMaintain: Boolean // is now maintenance.
+* versionCode: Int // versionCode of current version.
+
 ## Configuration
 
 ### Full configuration
@@ -72,7 +77,7 @@ MaintenanceManager.MainternanceBuilder(context, BuildConfig.VERSION_CODE)
                 .setMaintenanceMessage("title", "message", "buttonExit")
                 .setNewVersionMessage("title", "message", "buttonUpdate", "buttonLater")
                 .build()
-                .maintenaceResult(true, false, 2)
+                .maintenaceResult({isForceUpdate}, {isMaintain}, {versionCode})
 ```
 ### Default
 
