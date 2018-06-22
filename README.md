@@ -99,6 +99,7 @@ MaintenanceManager.MainternanceBuilder(context, BuildConfig.VERSION_CODE)
                 .setForceUpdateMessage("title", "message", "buttonUpdate")
                 .setMaintenanceMessage("title", "message", "buttonExit")
                 .setNewVersionMessage("title", "message", "buttonUpdate", "buttonLater")
+		.setUpdateUrl("http://www.google.com")
                 .build()
                 .maintenaceResult({isForceUpdate}, {isMaintain}, {versionCode})
 ```
