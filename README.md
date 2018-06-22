@@ -20,7 +20,7 @@ allprojects {
 ### Dependency
 ```groovy
 dependencies {
-	   implementation 'com.github.darkkillen:MaintenanceManager:v1.0.0'
+	   implementation 'com.github.darkkillen:MaintenanceManager:v1.0.1'
 	}
 ```
 
@@ -28,7 +28,7 @@ dependencies {
 
 ### Implement callback
 ```kotlin
-class MainActivity : AppCompatActivity(), onMaintenanceCallback {
+class MainActivity : AppCompatActivity(), OnMaintenanceButton {
 
     override fun onForceUpdateButtonClick() {
         
@@ -51,8 +51,32 @@ class MainActivity : AppCompatActivity(), onMaintenanceCallback {
     }
 }
 ```
+### or no dialog callback
+```kotlin
+class MainActivity : AppCompatActivity(), OnMaintenance {
+
+    override fun onForceUpdate() {
+        
+    }
+
+    override fun onMaintenance() {
+        
+    }
+
+    override fun onUpdateAvailable() {
+        
+    }
+
+    override fun onUpToDate() {
+        
+    }
+
+}
+```
 
 ### Init
+set callback one of these option [OnMaintenanceButton, OnMaintenance]
+
 ```kotlin
 MaintenanceManager.MainternanceBuilder(context, BuildConfig.VERSION_CODE)
                 .callback(this)
