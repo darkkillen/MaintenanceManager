@@ -20,7 +20,7 @@ allprojects {
 ### Dependency
 ```groovy
 dependencies {
-	   implementation 'com.github.darkkillen:MaintenanceManager:v1.0.1'
+	   implementation 'com.github.darkkillen:MaintenanceManager:v1.0.2'
 	}
 ```
 
