@@ -1,6 +1,6 @@
 package com.darkkillen.maintenancemanager
 
-interface onMaintenanceCallback {
+interface OnMaintenanceButton {
 
     fun onForceUpdateButtonClick()
     fun onMaintenanceButtonClick()

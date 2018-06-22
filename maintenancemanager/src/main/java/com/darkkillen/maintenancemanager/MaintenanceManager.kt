@@ -5,12 +5,13 @@ import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
 import android.util.Log
 
-class MaintenanceManager private constructor(builder: MainternanceBuilder) {
+class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
 
     private val TAG = "MaintenanceManager"
     private var context: Context? = null
     private var versionCode = 0
-    private var callback: onMaintenanceCallback? = null
+    private var callbackButton: OnMaintenanceButton? = null
+    private var callback: OnMaintenance? = null
     private var FORCE_UPDATE_TITLE: String? = null
     private var FORCE_UPDATE_MESSAGE: String? = null
     private var FORCE_UPDATE_BUTTON: String? = null
@@ -25,6 +26,7 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
     init {
         this.context = builder.context
         this.versionCode = builder.versionCode
+        this.callbackButton = builder.callbackButton
         this.callback = builder.callback
         this.FORCE_UPDATE_TITLE = builder.FORCE_UPDATE_TITLE
         this.FORCE_UPDATE_MESSAGE = builder.FORCE_UPDATE_MESSAGE
@@ -38,10 +40,11 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
         this.NEW_VERSION_CANCEL = builder.NEW_VERSION_CANCEL
     }
 
-    class MainternanceBuilder(
+    class MaintenanceBuilder(
             internal val context: Context, internal val versionCode: Int) {
 
-        internal var callback: onMaintenanceCallback? = null
+        internal var callbackButton: OnMaintenanceButton? = null
+        internal var callback: OnMaintenance? = null
         internal var FORCE_UPDATE_TITLE: String? = "Update Required"
         internal var FORCE_UPDATE_MESSAGE: String? = "Please update to latest version."
         internal var FORCE_UPDATE_BUTTON: String? = "Update"
@@ -53,26 +56,31 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
         internal var NEW_VERSION_UPDATE: String? = "Update"
         internal var NEW_VERSION_CANCEL: String? = "Later"
 
-        fun callback(callback: onMaintenanceCallback?): MainternanceBuilder {
+        fun callback(callback: OnMaintenanceButton?): MaintenanceBuilder {
+            this.callbackButton = callback
+            return this
+        }
+        
+        fun callback(callback: OnMaintenance?): MaintenanceBuilder {
             this.callback = callback
             return this
         }
 
-        fun setForceUpdateMessage(title: String?, message: String?, button: String?): MainternanceBuilder {
+        fun setForceUpdateMessage(title: String?, message: String?, button: String?): MaintenanceBuilder {
             FORCE_UPDATE_TITLE = title
             FORCE_UPDATE_MESSAGE = message
             FORCE_UPDATE_BUTTON = button
             return this
         }
 
-        fun setMaintenanceMessage(title: String?, message: String?, button: String?): MainternanceBuilder {
+        fun setMaintenanceMessage(title: String?, message: String?, button: String?): MaintenanceBuilder {
             MAINTENANCE_TITLE = title
             MAINTENANCE_MESSAGE = message
             MAINTENANCE_BUTTON = button
             return this
         }
 
-        fun setNewVersionMessage(title: String?, message: String?, buttonUpdate: String?, buttonCancel: String?): MainternanceBuilder {
+        fun setNewVersionMessage(title: String?, message: String?, buttonUpdate: String?, buttonCancel: String?): MaintenanceBuilder {
             NEW_VERSION_TITLE = title
             NEW_VERSION_MESSAGE = message
             NEW_VERSION_UPDATE = buttonUpdate
@@ -89,26 +97,52 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
 
     fun maintenaceResult(isForceUpdate: Boolean?, isMaintain: Boolean?, latestVersionCode: Int?) {
 
-        if (callback == null) throw MaintenanceException("Callback not found")
+        if (callbackButton == null && callback == null) throw MaintenanceException("Callback not found")
 
-        if (isForceUpdate == null || latestVersionCode == null) throw MaintenanceException("ForceUpdate not found.")
-        if (isForceUpdate && versionCode < latestVersionCode) {
-            showDialog(Constant.FORCE_UPDATE)
+        if (callbackButton != null) {
+
+            if (isForceUpdate == null || latestVersionCode == null) throw MaintenanceException("ForceUpdate not found.")
+            if (isForceUpdate && versionCode < latestVersionCode) {
+                showDialog(Constant.FORCE_UPDATE)
+                return
+            }
+
+            if (isMaintain == null) throw MaintenanceException("Maintenance not found.")
+            if (isMaintain) {
+                showDialog(Constant.UNDER_MAINTENANCE)
+                return
+            }
+
+            if (versionCode < latestVersionCode) {
+                showDialog(Constant.NEW_VERSION_AVAILABLE)
+                return
+            }
+
+            showDialog(Constant.UP_TO_DATE)
             return
         }
+        
+        if (callback != null) {
+            if (isForceUpdate == null || latestVersionCode == null) throw MaintenanceException("ForceUpdate not found.")
+            if (isForceUpdate && versionCode < latestVersionCode) {
+                callback?.onForceUpdate()
+                return
+            }
 
-        if (isMaintain == null) throw MaintenanceException("Maintenance not found.")
-        if (isMaintain) {
-            showDialog(Constant.UNDER_MAINTENANCE)
+            if (isMaintain == null) throw MaintenanceException("Maintenance not found.")
+            if (isMaintain) {
+                callback?.onMaintenance()
+                return
+            }
+
+            if (versionCode < latestVersionCode) {
+                callback?.onUpdateAvailable()
+                return
+            }
+
+            callback?.onUpToDate()
             return
         }
-
-        if (versionCode < latestVersionCode) {
-            showDialog(Constant.NEW_VERSION_AVAILABLE)
-            return
-        }
-
-        showDialog(Constant.UP_TO_DATE)
     }
 
     private fun showDialog(condition: Int) {
@@ -123,7 +157,7 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
                 dialogBuilder.setTitle(FORCE_UPDATE_TITLE)
                 dialogBuilder.setMessage(FORCE_UPDATE_MESSAGE)
                 dialogBuilder.setPositiveButton(FORCE_UPDATE_BUTTON, DialogInterface.OnClickListener { dialog, which ->
-                    callback?.onForceUpdateButtonClick()
+                    callbackButton?.onForceUpdateButtonClick()
                 })
                 dialogBuilder.setCancelable(false)
 
@@ -137,7 +171,7 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
                 dialogBuilder.setTitle(MAINTENANCE_TITLE)
                 dialogBuilder.setMessage(MAINTENANCE_MESSAGE)
                 dialogBuilder.setPositiveButton(MAINTENANCE_BUTTON, DialogInterface.OnClickListener { dialog, which ->
-                    callback?.onMaintenanceButtonClick()
+                    callbackButton?.onMaintenanceButtonClick()
                 })
                 dialogBuilder.setCancelable(false)
 
@@ -151,13 +185,13 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
                 dialogBuilder.setTitle(NEW_VERSION_TITLE)
                 dialogBuilder.setMessage(NEW_VERSION_MESSAGE)
                 dialogBuilder.setPositiveButton(NEW_VERSION_UPDATE, DialogInterface.OnClickListener { dialog, which ->
-                    callback?.onUpdateButtonClick()
+                    callbackButton?.onUpdateButtonClick()
                 })
                 dialogBuilder.setNegativeButton(NEW_VERSION_CANCEL, DialogInterface.OnClickListener { dialog, which ->
-                    callback?.onUpdateCancelClick()
+                    callbackButton?.onUpdateCancelClick()
                 })
                 dialogBuilder.setOnCancelListener {
-                    callback?.onUpdateCancelClick()
+                    callbackButton?.onUpdateCancelClick()
                 }
                 dialogBuilder.setCancelable(true)
 
@@ -167,7 +201,7 @@ class MaintenanceManager private constructor(builder: MainternanceBuilder) {
             }
 
             Constant.UP_TO_DATE            -> {
-                callback?.onUpToDate()
+                callbackButton?.onUpToDate()
             }
         }
     }
