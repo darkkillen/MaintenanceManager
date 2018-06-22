@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity(), OnMaintenanceButton {
 }
 ```
 ### or no dialog callback
+```kotlin
 class MainActivity : AppCompatActivity(), OnMaintenance {
 
     override fun onForceUpdate() {
@@ -75,6 +76,7 @@ class MainActivity : AppCompatActivity(), OnMaintenance {
 
 ### Init
 set callback one of these option [OnMaintenanceButton, OnMaintenance]
+
 ```kotlin
 MaintenanceManager.MainternanceBuilder(context, BuildConfig.VERSION_CODE)
                 .callback(this)
