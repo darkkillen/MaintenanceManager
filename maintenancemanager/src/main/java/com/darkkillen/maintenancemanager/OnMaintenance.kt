@@ -2,9 +2,9 @@ package com.darkkillen.maintenancemanager
 
 interface OnMaintenance {
 
-    fun onForceUpdate()
+    fun onForceUpdate(url: String?)
     fun onMaintenance()
-    fun onUpdateAvailable()
+    fun onUpdateAvailable(url: String?)
     fun onUpToDate()
 
 }

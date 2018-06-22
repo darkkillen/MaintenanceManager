@@ -2,9 +2,9 @@ package com.darkkillen.maintenancemanager
 
 interface OnMaintenanceButton {
 
-    fun onForceUpdateButtonClick()
+    fun onForceUpdateButtonClick(url: String?)
     fun onMaintenanceButtonClick()
-    fun onUpdateButtonClick()
+    fun onUpdateButtonClick(url: String?)
     fun onUpdateCancelClick()
     fun onUpToDate()
 

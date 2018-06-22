@@ -22,6 +22,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
     private var NEW_VERSION_MESSAGE: String? = null
     private var NEW_VERSION_UPDATE: String? = null
     private var NEW_VERSION_CANCEL: String? = null
+    private var url: String? = null
 
     init {
         this.context = builder.context
@@ -38,6 +39,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
         this.NEW_VERSION_MESSAGE = builder.NEW_VERSION_MESSAGE
         this.NEW_VERSION_UPDATE = builder.NEW_VERSION_UPDATE
         this.NEW_VERSION_CANCEL = builder.NEW_VERSION_CANCEL
+        this.url = builder.url
     }
 
     class MaintenanceBuilder(
@@ -55,6 +57,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
         internal var NEW_VERSION_MESSAGE: String? = "New version available now."
         internal var NEW_VERSION_UPDATE: String? = "Update"
         internal var NEW_VERSION_CANCEL: String? = "Later"
+        internal var url: String? = null
 
         fun callback(callback: OnMaintenanceButton?): MaintenanceBuilder {
             this.callbackButton = callback
@@ -85,6 +88,11 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
             NEW_VERSION_MESSAGE = message
             NEW_VERSION_UPDATE = buttonUpdate
             NEW_VERSION_CANCEL = buttonCancel
+            return this
+        }
+
+        fun setUpdateUrl(url: String?): MaintenanceBuilder {
+            this.url = url
             return this
         }
 
@@ -125,7 +133,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
         if (callback != null) {
             if (isForceUpdate == null || latestVersionCode == null) throw MaintenanceException("ForceUpdate not found.")
             if (isForceUpdate && versionCode < latestVersionCode) {
-                callback?.onForceUpdate()
+                callback?.onForceUpdate(url)
                 return
             }
 
@@ -136,7 +144,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
             }
 
             if (versionCode < latestVersionCode) {
-                callback?.onUpdateAvailable()
+                callback?.onUpdateAvailable(url)
                 return
             }
 
@@ -157,7 +165,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
                 dialogBuilder.setTitle(FORCE_UPDATE_TITLE)
                 dialogBuilder.setMessage(FORCE_UPDATE_MESSAGE)
                 dialogBuilder.setPositiveButton(FORCE_UPDATE_BUTTON, DialogInterface.OnClickListener { dialog, which ->
-                    callbackButton?.onForceUpdateButtonClick()
+                    callbackButton?.onForceUpdateButtonClick(url)
                 })
                 dialogBuilder.setCancelable(false)
 
@@ -185,7 +193,7 @@ class MaintenanceManager private constructor(builder: MaintenanceBuilder) {
                 dialogBuilder.setTitle(NEW_VERSION_TITLE)
                 dialogBuilder.setMessage(NEW_VERSION_MESSAGE)
                 dialogBuilder.setPositiveButton(NEW_VERSION_UPDATE, DialogInterface.OnClickListener { dialog, which ->
-                    callbackButton?.onUpdateButtonClick()
+                    callbackButton?.onUpdateButtonClick(url)
                 })
                 dialogBuilder.setNegativeButton(NEW_VERSION_CANCEL, DialogInterface.OnClickListener { dialog, which ->
                     callbackButton?.onUpdateCancelClick()
